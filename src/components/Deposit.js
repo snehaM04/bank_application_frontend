@@ -24,7 +24,7 @@ const Deposit = () => {
 
     console.log("Sending deposit request:", depositPayload);
 
-    axios.post("http://localhost:8085/api/transaction/deposit", depositPayload)
+    axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/transaction/deposit`, depositPayload)
       .then(res => {
         setMessage(res.data || "Deposit successful!");
         setAmount('');

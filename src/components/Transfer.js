@@ -27,7 +27,7 @@ const Transfer = () => {
     }
 
     try {
-      const existsRes = await axios.get(`http://localhost:8085/api/account/existsAccountId/${recipientAccountId}`);
+      const existsRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/account/existsAccountId/${recipientAccountId}`);
       if (!existsRes.data.exists) {
         setError("Recipient account does not exist.");
         return;
@@ -39,7 +39,7 @@ const Transfer = () => {
         amount: parseFloat(amount)
       };
 
-      const res = await axios.post("http://localhost:8085/api/transaction/transfer", transferPayload);
+      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/transaction/transfer`, transferPayload);
       setMessage(res.data.message || "Transfer successful!");
       setAmount('');
       setRecipientAccountId('');

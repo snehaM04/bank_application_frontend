@@ -10,11 +10,11 @@ const Customer = () => {
   const customerId = localStorage.getItem("customerId");
 
   useEffect(() => {
-    axios.get(`http://localhost:8085/api/customer/getDetails/${customerId}`)
+    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customer/getDetails/${customerId}`)
       .then(res => setCustomer(res.data))
       .catch(err => console.error("Failed to fetch customer details:", err));
 
-    axios.get(`http://localhost:8085/api/account/getAccountDetails/${customerId}`)
+    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/account/getAccountDetails/${customerId}`)
       .then(res => {
         setAccount(res.data);
         localStorage.setItem("accountId", res.data.accountId); // ✅ correct place
@@ -30,10 +30,10 @@ const Customer = () => {
       balance: parseFloat(initialBalance)
     };
 
-    axios.post("http://localhost:8085/api/account/create", accountPayload)
+    axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/account/create`, accountPayload)
       .then(res => {
         alert(res.data.message || "Account successfully created.");
-        return axios.get(`http://localhost:8085/api/account/getAccountDetails/${customerId}`);
+        return axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/account/getAccountDetails/${customerId}`);
       })
       .then(accRes => {
         setAccount(accRes.data);

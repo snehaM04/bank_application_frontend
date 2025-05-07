@@ -16,7 +16,7 @@ const Withdraw = () => {
       return;
     }
 
-    axios.post(`http://localhost:8085/api/transaction/withdraw`, {
+    axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/transaction/withdraw`, {
       accountId: parseInt(accountId),
       amount: parseFloat(amount)
     })

@@ -13,7 +13,7 @@ const TransactionHistory = () => {
     const fetchTransactionHistory = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8085/api/transaction/transactionHistory`,
+          `${process.env.REACT_APP_API_BASE_URL}/api/transaction/transactionHistory`,
           {
             params: { accountId },
           }
