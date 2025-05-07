@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
 import '../css/Login.css';
+import axios from 'axios';
 
 const Login = () => {
   const [state, setState] = useState({
@@ -44,7 +45,7 @@ const Login = () => {
     if (isValid) {
       console.log('Form is valid. Proceeding with login...');
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/login`, {
+        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
