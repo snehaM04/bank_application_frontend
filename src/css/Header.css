@@ -1,0 +1,45 @@
+.nav-container {
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  border-bottom: 1px solid #ddd;
+  font-style: italic;
+}
+
+.head-logo h2 {
+  margin: 0;
+  color: rgb(1, 1, 1);
+}
+
+.nav-list {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.list-item {
+  color: #0c0b0b;
+  font-size: large;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.list-item:hover {
+  text-decoration: underline;
+}
+
+.activeItem {
+  font-weight: bold;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: #0c0b0b;
+  cursor: pointer;
+  font-size: large;
+  padding: 0;
+}

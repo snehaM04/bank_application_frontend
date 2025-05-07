@@ -1,0 +1,79 @@
+.customer-dashboard {
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 30px;
+  background-color: #fdfdfd;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.customer-dashboard h1 {
+  text-align: center;
+  color: #003366;
+  margin-bottom: 30px;
+}
+
+.customer-info, .account-info, .no-account {
+  background-color: #eef5f9;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 10px;
+}
+
+.customer-info h2 {
+  color: #2a5d84;
+}
+
+.account-form label {
+  display: block;
+  margin: 10px 0;
+}
+
+.account-form input,
+.account-form select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.account-form button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: bold;
+}
+
+.account-form button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.action-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.action-buttons button {
+  flex: 1;
+  padding: 12px;
+  background-color: #006699;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.action-buttons button:hover {
+  background-color: #004466;
+}

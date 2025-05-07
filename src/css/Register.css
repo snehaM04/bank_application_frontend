@@ -1,0 +1,58 @@
+.top {
+   /* Light gray background */
+ /* Increased padding for better spacing */
+  text-align: center; /* Center align text */
+  box-sizing: border-box;
+  margin-top: 30px;;
+}
+
+.container {
+  max-width: 500px; /* Limit width of the form container */
+  margin: 0 auto;
+  background-color: aliceblue;
+}
+
+.header {
+  margin-bottom: 30px; /* Increased margin for better separation */
+  padding: 10px;
+}
+
+h1 {
+  font-size: 28px; /* Larger font size for headings */
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column; /* Arrange form elements vertically */
+}
+
+.inputs {
+  margin-bottom: 20px; /* Increased margin for better separation */
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 5px;
+}
+
+.error {
+  color: #dc3545; /* Red color for error message */
+  font-size: 14px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff; /* Blue background color */
+  color: #fff; /* White text color */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker blue background color on hover */
+}

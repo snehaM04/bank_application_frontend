@@ -1,0 +1,54 @@
+.transaction-container {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 25px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  .transaction-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .transaction-form label {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: 500;
+  }
+  
+  .transaction-form input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .transaction-form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .transaction-form button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  
+  .message {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: 500;
+    color: green;
+  }
+  
