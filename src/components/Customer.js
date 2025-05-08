@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../css/Customer.css';
 
-const CustomerDashboard = () => {
+const Customer = () => {
   const [customer, setCustomer] = useState(null);
   const [account, setAccount] = useState(null);
   const [accountType, setAccountType] = useState('');
@@ -18,6 +18,7 @@ const CustomerDashboard = () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customer/getDetails/${customerId}`);
         setCustomer(response.data);
+        console.log("Customer data:", response.data);
       } catch (error) {
         console.error("Error fetching customer details:", error);
       }
@@ -32,6 +33,7 @@ const CustomerDashboard = () => {
         const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/account/getAccountDetails/${customerId}`);
         setAccount(response.data);
         localStorage.setItem("accountId", response.data.accountId);
+        console.log("Account data:", response.data);
       } catch (error) {
         setAccount(null); // No account found
       } finally {
@@ -67,7 +69,7 @@ const CustomerDashboard = () => {
   };
 
   return (
-    <div className="dashboard">
+    <div className="customer-dashboard">
       <h1>Customer Dashboard</h1>
 
       {loading ? (
@@ -75,7 +77,7 @@ const CustomerDashboard = () => {
       ) : (
         <>
           {customer && (
-            <div className="customer-details">
+            <div className="customer-info">
               <h2>Welcome, {customer.firstName} {customer.lastName}</h2>
               <p><strong>Email:</strong> {customer.email}</p>
               <p><strong>Phone:</strong> {customer.phoneNumber}</p>
@@ -84,7 +86,7 @@ const CustomerDashboard = () => {
           )}
 
           {account ? (
-            <div className="account-section">
+            <div className="account-info">
               <h3>Your Account</h3>
               <p><strong>Account ID:</strong> {account.accountId}</p>
               <p><strong>Type:</strong> {account.accountType}</p>
@@ -133,4 +135,4 @@ const CustomerDashboard = () => {
   );
 };
 
-export default CustomerDashboard;
+export default Customer;
