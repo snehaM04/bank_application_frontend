@@ -13,28 +13,26 @@ import Footer from './components/Footer';
 import About from './components/About';
 import Contact from './components/Contact';
 
-// Create Auth Context
+// Auth Context
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
-
-// Route guard
+// Protected route logic
 const ProtectedRoute = ({ element }) => {
   const { isLoggedIn } = useAuth();
   return isLoggedIn ? element : <Navigate to="/login" replace />;
 };
 
+// Public route logic
 const PublicRoute = ({ element }) => {
   const { isLoggedIn } = useAuth();
   return isLoggedIn ? <Navigate to="/customer" replace /> : element;
 };
 
-// Main App Component
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return !!localStorage.getItem('customerId');
   });
-
 
   useEffect(() => {
     console.log("Login status changed:", isLoggedIn);
@@ -47,23 +45,26 @@ const App = () => {
           <Header />
           <div className="main-content">
             <Routes>
-              {/* Public routes only if not logged in */}
+              {/* Public Routes */}
               <Route path="/" element={<PublicRoute element={<Home />} />} />
               <Route path="/login" element={<PublicRoute element={<Login />} />} />
               <Route path="/register" element={<PublicRoute element={<Register />} />} />
 
-              {/* Protected routes after login */}
+              {/* Protected Routes */}
               <Route path="/customer" element={<ProtectedRoute element={<Customer />} />} />
               <Route path="/deposit" element={<ProtectedRoute element={<Deposit />} />} />
               <Route path="/withdraw" element={<ProtectedRoute element={<Withdraw />} />} />
               <Route path="/transfer" element={<ProtectedRoute element={<Transfer />} />} />
               <Route path="/transactions" element={<ProtectedRoute element={<Transactions />} />} />
+
+              {/* Public (Always accessible) */}
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+
+              {/* Catch-All Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
-          <Routes>
-            <Route path="/about" element={<About/>}/>
-            <Route path="/contact" element={<Contact/>}/>
-          </Routes>
           <Footer />
         </Router>
       </div>
