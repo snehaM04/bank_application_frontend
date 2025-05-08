@@ -2,45 +2,64 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../css/Customer.css';
 
-const Customer = () => {
+const CustomerDashboard = () => {
   const [customer, setCustomer] = useState(null);
   const [account, setAccount] = useState(null);
-  const [newAccountType, setNewAccountType] = useState('');
-  const [initialBalance, setInitialBalance] = useState('');
+  const [accountType, setAccountType] = useState('');
+  const [balance, setBalance] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+
   const customerId = localStorage.getItem("customerId");
 
+  // Fetch Customer Details
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customer/getDetails/${customerId}`)
-      .then(res => setCustomer(res.data))
-      .catch(err => console.error("Failed to fetch customer details:", err));
-
-    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/account/getAccountDetails/${customerId}`)
-      .then(res => {
-        setAccount(res.data);
-        localStorage.setItem("accountId", res.data.accountId); // ✅ correct place
-        console.log("Account ID:", res.data.accountId); // ✅ correct place
-      })
-      .catch(() => setAccount(null));
+    const fetchCustomer = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customer/getDetails/${customerId}`);
+        setCustomer(response.data);
+      } catch (error) {
+        console.error("Error fetching customer details:", error);
+      }
+    };
+    fetchCustomer();
   }, [customerId]);
 
-  const handleCreateAccount = () => {
-    const accountPayload = {
+  // Fetch Account Details
+  useEffect(() => {
+    const fetchAccount = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/account/getAccountDetails/${customerId}`);
+        setAccount(response.data);
+        localStorage.setItem("accountId", response.data.accountId);
+      } catch (error) {
+        setAccount(null); // No account found
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAccount();
+  }, [customerId]);
+
+  const handleCreateAccount = async () => {
+    if (!accountType || balance === '') return;
+
+    const payload = {
       customerId: { customerId: parseInt(customerId) },
-      accountType: newAccountType,
-      balance: parseFloat(initialBalance)
+      accountType,
+      balance: parseFloat(balance),
     };
 
-    axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/account/create`, accountPayload)
-      .then(res => {
-        alert(res.data.message || "Account successfully created.");
-        return axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/account/getAccountDetails/${customerId}`);
-      })
-      .then(accRes => {
-        setAccount(accRes.data);
-        localStorage.setItem("accountId", accRes.data.accountId); // ✅ Updated to accRes
-        console.log("Account ID:", accRes.data.accountId);
-      })
-      .catch(() => alert("Failed to create account"));
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/account/create`, payload);
+      setMessage(response.data.message || "Account successfully created.");
+
+      const updatedAccount = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/account/getAccountDetails/${customerId}`);
+      setAccount(updatedAccount.data);
+      localStorage.setItem("accountId", updatedAccount.data.accountId);
+    } catch (error) {
+      setMessage("Failed to create account. Please try again.");
+    }
   };
 
   const redirectTo = (path) => {
@@ -48,68 +67,70 @@ const Customer = () => {
   };
 
   return (
-    <div className="customer-dashboard">
+    <div className="dashboard">
       <h1>Customer Dashboard</h1>
 
-      {customer ? (
-        <div className="customer-info">
-          <h2>Welcome, {customer.firstName} {customer.lastName}</h2>
-          <p><strong>Email:</strong> {customer.email}</p>
-          <p><strong>Phone:</strong> {customer.phoneNumber}</p>
-          <p><strong>Address:</strong> {customer.address}</p>
-        </div>
+      {loading ? (
+        <p>Loading...</p>
       ) : (
-        <p>Loading customer data...</p>
-      )}
+        <>
+          {customer && (
+            <div className="customer-details">
+              <h2>Welcome, {customer.firstName} {customer.lastName}</h2>
+              <p><strong>Email:</strong> {customer.email}</p>
+              <p><strong>Phone:</strong> {customer.phoneNumber}</p>
+              <p><strong>Address:</strong> {customer.address}</p>
+            </div>
+          )}
 
-      {account ? (
-        <div className="account-info">
-          <h3>Your Account</h3>
-          <p><strong>Account ID:</strong> {account.accountId}</p>
-          <p><strong>Type:</strong> {account.accountType}</p>
-          <p><strong>Balance:</strong> ₹{account.balance}</p>
+          {account ? (
+            <div className="account-section">
+              <h3>Your Account</h3>
+              <p><strong>Account ID:</strong> {account.accountId}</p>
+              <p><strong>Type:</strong> {account.accountType}</p>
+              <p><strong>Balance:</strong> ₹{account.balance}</p>
 
-          <div className="action-buttons">
-            <button onClick={() => redirectTo("/deposit")}>Deposit</button>
-            <button onClick={() => redirectTo("/withdraw")}>Withdraw</button>
-            <button onClick={() => redirectTo("/transfer")}>Transfer</button>
-            <button onClick={() => redirectTo("/transactions")}>Transaction History</button>
-          </div>
-        </div>
-      ) : (
-        <div className="no-account">
-          <h3>Create a New Account</h3>
-          <div className="account-form">
-            <label>
-              Account Type:
-              <select value={newAccountType} onChange={e => setNewAccountType(e.target.value)}>
-                <option value="">-- Select --</option>
-                <option value="SAVINGS">SAVINGS</option>
-                <option value="CURRENT">CURRENT</option>
-              </select>
-            </label>
+              <div className="account-actions">
+                <button onClick={() => redirectTo("/deposit")}>Deposit</button>
+                <button onClick={() => redirectTo("/withdraw")}>Withdraw</button>
+                <button onClick={() => redirectTo("/transfer")}>Transfer</button>
+                <button onClick={() => redirectTo("/transactions")}>Transaction History</button>
+              </div>
+            </div>
+          ) : (
+            <div className="create-account">
+              <h3>Create an Account</h3>
+              <div className="form-group">
+                <label>
+                  Account Type:
+                  <select value={accountType} onChange={(e) => setAccountType(e.target.value)}>
+                    <option value="">-- Select --</option>
+                    <option value="SAVINGS">SAVINGS</option>
+                    <option value="CURRENT">CURRENT</option>
+                  </select>
+                </label>
 
-            <label>
-              Initial Balance:
-              <input
-                type="number"
-                value={initialBalance}
-                onChange={e => setInitialBalance(e.target.value)}
-                placeholder="Enter amount"
-              />
-            </label>
+                <label>
+                  Initial Balance:
+                  <input
+                    type="number"
+                    value={balance}
+                    onChange={(e) => setBalance(e.target.value)}
+                    placeholder="Enter amount"
+                  />
+                </label>
 
-            <button
-              onClick={handleCreateAccount}
-              disabled={!newAccountType || initialBalance === ''}
-            >
-              Create Account
-            </button>
-          </div>
-        </div>
+                <button onClick={handleCreateAccount} disabled={!accountType || balance === ''}>
+                  Create Account
+                </button>
+              </div>
+              {message && <p className="status-message">{message}</p>}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 };
 
-export default Customer;
+export default CustomerDashboard;

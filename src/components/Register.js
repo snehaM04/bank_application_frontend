@@ -23,7 +23,7 @@ const Register = () => {
     });
     setErrors({
       ...errors,
-      [e.target.name]: '', // clear error on change
+      [e.target.name]: '',
     });
   };
 

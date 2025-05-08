@@ -1,58 +1,70 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import '../css/deposit.css'; // You can rename or style accordingly
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import '../css/Deposit.css'; // Make sure your CSS matches new class names
 
 const Deposit = () => {
   const [amount, setAmount] = useState('');
-  const [message, setMessage] = useState('');
-  
-  const accountId = localStorage.getItem("accountId"); // Make sure this is stored after login/account fetch
-
+  const [feedback, setFeedback] = useState({ message: '', type: '' });
   const navigate = useNavigate();
 
-  const handleDeposit = () => {
-    if (!accountId || !amount) {
-      setMessage("Please enter a valid amount.");
+  const accountId = localStorage.getItem("accountId");
+
+  const handleDeposit = async () => {
+    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+      setFeedback({ message: "Please enter a valid amount greater than 0.", type: "error" });
       return;
     }
 
-    const depositPayload = {
+    const payload = {
       accountId: parseInt(accountId),
-      amount: parseFloat(amount)
+      amount: parseFloat(amount),
     };
 
-    console.log("Sending deposit request:", depositPayload);
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/transaction/deposit`, payload);
+      setFeedback({ message: response.data || "Deposit successful!", type: "success" });
+      setAmount('');
 
-    axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/transaction/deposit`, depositPayload)
-      .then(res => {
-        setMessage(res.data || "Deposit successful!");
-        setAmount('');
-        setTimeout(() => {
-          navigate('/customer'); // Redirect to customer page after 2 seconds
-        }, 2000);
-      })
-      .catch(err => {
-        console.error("Deposit failed:", err);
-        setMessage("Deposit failed. Please try again.");
-      });
+      setTimeout(() => {
+        navigate('/customer');
+      }, 2000);
+    } catch (error) {
+      console.error("Deposit error:", error);
+      setFeedback({ message: "Deposit failed. Please try again later.", type: "error" });
+    }
   };
 
   return (
-    <div className="transaction-container">
-      <h2>Deposit Money</h2>
-      <div className="transaction-form">
-        <label>
-          Enter Amount:
+    <div className="deposit-page">
+      <div className="deposit-card">
+        <h2>Deposit Funds</h2>
+        
+        <div className="input-group">
+          <label htmlFor="amount">Amount (₹):</label>
           <input
+            id="amount"
             type="number"
             value={amount}
-            onChange={e => setAmount(e.target.value)}
-            placeholder="Enter amount"
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Enter deposit amount"
+            min="1"
           />
-        </label>
-        <button onClick={handleDeposit} disabled={!amount}>Deposit</button>
-        {message && <p className="message">{message}</p>}
+        </div>
+
+        <button
+          className="deposit-btn"
+          onClick={handleDeposit}
+          disabled={!amount}
+        >
+          Deposit
+        </button>
+
+        {feedback.message && (
+          <p className={`feedback ${feedback.type}`}>
+            {feedback.message}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -1,75 +1,89 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import '../css/withdraw.css';
 import { useNavigate } from 'react-router-dom';
+import '../css/withdraw.css'; // Make sure it matches new class names
 
 const Withdraw = () => {
-  const [amount, setAmount] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [status, setStatus] = useState({ message: '', type: '' });
+  const [loading, setLoading] = useState(false);
 
   const accountId = localStorage.getItem('accountId');
+  const navigate = useNavigate();
+
+  const validateAmount = (amount) => {
+    const num = parseFloat(amount);
+    return !isNaN(num) && num > 0;
+  };
 
   const handleWithdraw = async () => {
-    setMessage('');
-    setError('');
+    setStatus({ message: '', type: '' });
 
-    if (!amount.trim() || isNaN(amount) || parseFloat(amount) <= 0) {
-      setError('Please enter a valid positive amount.');
+    if (!validateAmount(withdrawAmount)) {
+      setStatus({ message: 'Please enter a valid amount greater than 0.', type: 'error' });
       return;
     }
 
-    try {
-      setIsLoading(true);
-      const payload = {
-        accountId: parseInt(accountId),
-        amount: parseFloat(amount)
-      };
+    const payload = {
+      accountId: parseInt(accountId),
+      amount: parseFloat(withdrawAmount),
+    };
 
-      const res = await axios.post(
+    try {
+      setLoading(true);
+      const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/api/transaction/withdraw`,
         payload
       );
 
-      setMessage(res.data.message || 'Withdrawal successful!');
-      setAmount('');
+      setStatus({ message: response.data.message || 'Withdrawal successful!', type: 'success' });
+      setWithdrawAmount('');
 
       setTimeout(() => {
         navigate('/customer');
       }, 2000);
-    } catch (err) {
-      console.error('Withdrawal error:', err);
-      setError(
-        err?.response?.data?.message || 'Withdrawal failed. Please try again later.'
-      );
+    } catch (error) {
+      console.error('Withdraw Error:', error);
+      setStatus({
+        message: error?.response?.data?.message || 'Withdrawal failed. Please try again later.',
+        type: 'error',
+      });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="withdraw-container">
-      <h2>Withdraw Funds</h2>
+    <div className="withdraw-page">
+      <div className="withdraw-card">
+        <h2>Withdraw Funds</h2>
 
-      <div className="form-group">
-        <label>Amount to Withdraw</label>
-        <input
-          type="number"
-          min="1"
-          placeholder="Enter amount"
-          value={amount}
-          onChange={e => setAmount(e.target.value)}
-        />
+        <div className="input-section">
+          <label htmlFor="withdrawAmount">Amount (₹)</label>
+          <input
+            id="withdrawAmount"
+            type="number"
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(e.target.value)}
+            placeholder="Enter amount"
+            min="1"
+          />
+        </div>
+
+        <button
+          className="withdraw-btn"
+          onClick={handleWithdraw}
+          disabled={loading || !withdrawAmount}
+        >
+          {loading ? 'Processing...' : 'Withdraw'}
+        </button>
+
+        {status.message && (
+          <p className={`status-message ${status.type}`}>
+            {status.message}
+          </p>
+        )}
       </div>
-
-      <button onClick={handleWithdraw} disabled={isLoading || !amount || parseFloat(amount) <= 0}>
-        {isLoading ? 'Processing...' : 'Withdraw'}
-      </button>
-
-      {message && <p className="success-message">{message}</p>}
-      {error && <p className="error-message">{error}</p>}
     </div>
   );
 };
