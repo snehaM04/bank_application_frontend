@@ -1,89 +1,54 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import '../css/withdraw.css';
 import { useNavigate } from 'react-router-dom';
-import '../css/withdraw.css'; // Make sure it matches new class names
 
 const Withdraw = () => {
-  const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [status, setStatus] = useState({ message: '', type: '' });
-  const [loading, setLoading] = useState(false);
-
+  const [amount, setAmount] = useState('');
+  const [message, setMessage] = useState('');
   const accountId = localStorage.getItem('accountId');
+
   const navigate = useNavigate();
 
-  const validateAmount = (amount) => {
-    const num = parseFloat(amount);
-    return !isNaN(num) && num > 0;
-  };
-
-  const handleWithdraw = async () => {
-    setStatus({ message: '', type: '' });
-
-    if (!validateAmount(withdrawAmount)) {
-      setStatus({ message: 'Please enter a valid amount greater than 0.', type: 'error' });
+  const handleWithdraw = () => {
+    if (!amount || parseFloat(amount) <= 0) {
+      setMessage('Please enter a valid amount.');
       return;
     }
 
-    const payload = {
+    axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/transaction/withdraw`, {
       accountId: parseInt(accountId),
-      amount: parseFloat(withdrawAmount),
-    };
-
-    try {
-      setLoading(true);
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/api/transaction/withdraw`,
-        payload
-      );
-
-      setStatus({ message: response.data.message || 'Withdrawal successful!', type: 'success' });
-      setWithdrawAmount('');
-
-      setTimeout(() => {
-        navigate('/customer');
-      }, 2000);
-    } catch (error) {
-      console.error('Withdraw Error:', error);
-      setStatus({
-        message: error?.response?.data?.message || 'Withdrawal failed. Please try again later.',
-        type: 'error',
+      amount: parseFloat(amount)
+    })
+      .then(res => {
+        setMessage(res.data.message || 'Withdrawal successful!');
+        setAmount('');
+        setTimeout(() => {
+          navigate('/customer'); // Redirect to customer page after 2 seconds
+        }, 2000);
+      })
+      .catch(err => {
+        console.error('Withdrawal error:', err);
+        setMessage('Withdrawal failed. Please try again.');
       });
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
-    <div className="withdraw-page">
-      <div className="withdraw-card">
-        <h2>Withdraw Funds</h2>
+    <div className="withdraw-container">
+      <h2>Withdraw Funds</h2>
 
-        <div className="input-section">
-          <label htmlFor="withdrawAmount">Amount (₹)</label>
-          <input
-            id="withdrawAmount"
-            type="number"
-            value={withdrawAmount}
-            onChange={(e) => setWithdrawAmount(e.target.value)}
-            placeholder="Enter amount"
-            min="1"
-          />
-        </div>
+      <input
+        type="number"
+        placeholder="Enter amount"
+        value={amount}
+        onChange={e => setAmount(e.target.value)}
+      />
 
-        <button
-          className="withdraw-btn"
-          onClick={handleWithdraw}
-          disabled={loading || !withdrawAmount}
-        >
-          {loading ? 'Processing...' : 'Withdraw'}
-        </button>
+      <button onClick={handleWithdraw} disabled={!amount || parseFloat(amount) <= 0}>
+        Withdraw
+      </button>
 
-        {status.message && (
-          <p className={`status-message ${status.type}`}>
-            {status.message}
-          </p>
-        )}
-      </div>
+      {message && <p className="withdraw-message">{message}</p>}
     </div>
   );
 };

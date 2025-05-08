@@ -8,23 +8,16 @@ const Transfer = () => {
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-
   const senderAccountId = localStorage.getItem("accountId");
+
+  const navigate = useNavigate();
 
   const handleTransfer = async () => {
     setMessage('');
     setError('');
 
-    // Input validations
-    if (!recipientAccountId.trim() || !amount.trim()) {
-      setError("Both fields are required.");
-      return;
-    }
-
-    if (isNaN(recipientAccountId) || isNaN(amount) || parseFloat(amount) <= 0) {
-      setError("Enter valid numeric values. Amount must be greater than zero.");
+    if (!recipientAccountId || !amount || parseFloat(amount) <= 0) {
+      setError("Please enter a valid recipient account ID and amount.");
       return;
     }
 
@@ -34,16 +27,9 @@ const Transfer = () => {
     }
 
     try {
-      setIsLoading(true);
-
-      // Check if recipient account exists
-      const existsRes = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/api/account/existsAccountId/${recipientAccountId}`
-      );
-
+      const existsRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/account/existsAccountId/${recipientAccountId}`);
       if (!existsRes.data.exists) {
         setError("Recipient account does not exist.");
-        setIsLoading(false);
         return;
       }
 
@@ -53,25 +39,15 @@ const Transfer = () => {
         amount: parseFloat(amount)
       };
 
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/api/transaction/transfer`,
-        transferPayload
-      );
-
+      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/transaction/transfer`, transferPayload);
       setMessage(res.data.message || "Transfer successful!");
-      setRecipientAccountId('');
       setAmount('');
-
+      setRecipientAccountId('');
       setTimeout(() => {
-        navigate('/customer');
+        navigate('/customer'); // Redirect to customer page after 2 seconds
       }, 2000);
     } catch (err) {
-      console.error("Transfer error:", err);
-      setError(
-        err?.response?.data?.message || "Transfer failed. Please try again later."
-      );
-    } finally {
-      setIsLoading(false);
+      setError("Transfer failed. Please try again.");
     }
   };
 
@@ -96,13 +72,10 @@ const Transfer = () => {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Enter amount"
-          min="1"
         />
       </div>
 
-      <button onClick={handleTransfer} disabled={isLoading}>
-        {isLoading ? 'Processing...' : 'Send Money'}
-      </button>
+      <button onClick={handleTransfer}>Send Money</button>
 
       {message && <p className="success">{message}</p>}
       {error && <p className="error">{error}</p>}

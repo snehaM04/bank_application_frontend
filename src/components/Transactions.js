@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../css/transactions.css";
 
-const TransactionHistory = () => {
+const Transaction = () => {
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -76,4 +76,4 @@ const TransactionHistory = () => {
   );
 };
 
-export default TransactionHistory;
+export default Transaction;

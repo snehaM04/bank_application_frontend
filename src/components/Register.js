@@ -3,164 +3,151 @@ import '../css/Register.css';
 import axios from 'axios';
 
 const Register = () => {
-  const [formData, setFormData] = useState({
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phoneNumber: '',
     address: '',
-    password: '',
+    password: ''
   });
 
-  const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-    setErrors({
-      ...errors,
-      [e.target.name]: '',
-    });
-  };
+  function validateForm() {
+    let valid = true;
+    const errorsCopy = { ...errors };
+    if (!firstName.trim() || !/^[a-zA-Z]/.test(firstName.trim())) {
+      errorsCopy.firstName = 'First name must start with a letter';
+      valid = false;
+    }
+    if (!lastName.trim() || !/^[a-zA-Z]/.test(lastName.trim())) {
+      errorsCopy.lastName = 'Last name must start with a letter';
+      valid = false;
+    }
+    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) {
+      errorsCopy.email = 'Please enter a valid email address';
+      valid = false;
+    }
+    if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
+      errorsCopy.phoneNumber = 'Please enter a valid 10-digit phone number';
+      valid = false;
+    }
+    if (!address.trim()) {
+      errorsCopy.address = 'Address is required';
+      valid = false;
+    }
+    if (!password || password.length < 6) {
+      errorsCopy.password = 'Password must be at least 6 characters long';
+      valid = false;
+    }
+    setErrors(errorsCopy);
+    return valid;
+  }
 
-  const validateForm = () => {
-    const newErrors = {};
-    let isValid = true;
-
-    if (!formData.firstName.trim() || !/^[a-zA-Z]/.test(formData.firstName)) {
-      newErrors.firstName = 'First name must start with a letter';
-      isValid = false;
-    }
-    if (!formData.lastName.trim() || !/^[a-zA-Z]/.test(formData.lastName)) {
-      newErrors.lastName = 'Last name must start with a letter';
-      isValid = false;
-    }
-    if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-      isValid = false;
-    }
-    if (!/^\d{10}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Please enter a valid 10-digit phone number';
-      isValid = false;
-    }
-    if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
-      isValid = false;
-    }
-    if (!formData.password || formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters long';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleSubmit = async (e) => {
+  async function saveForm(e) {
     e.preventDefault();
-    setSuccessMessage('');
-    if (!validateForm()) return;
-
-    setLoading(true);
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/customer/create`, formData);
-      if (response.status === 201 || response.status === 200) {
-        setSuccessMessage('Registered successfully!');
-        setFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          phoneNumber: '',
-          address: '',
-          password: '',
+    if (validateForm()) {
+      try {
+        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/customer/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            address,
+            password
+          })
         });
-      } else {
-        setSuccessMessage('Registration failed. Please try again.');
+        if (response.ok) {
+          setSuccessMessage('Registered successfully !!');
+          // Optionally, reset the form fields
+          setFirstName('');
+          setLastName('');
+          setEmail('');
+          setPhoneNumber('');
+          setAddress('');
+          setPassword('');
+        } else {
+          console.error('Registration failed:', response.statusText);
+          // Handle error scenario, if needed
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        // Handle error scenario, if needed
       }
-    } catch (error) {
-      console.error('Error during registration:', error);
-      setSuccessMessage('Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
     }
-  };
+  }
 
   return (
-    <section className="top">
-      <div className="container">
-        <div className="header">
-          <h1>Create New Account</h1>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="inputs">
-            <input
-              type="text"
-              name="firstName"
-              placeholder="Enter your First Name"
-              value={formData.firstName}
-              onChange={handleInputChange}
-            />
-            {errors.firstName && <div className="error">{errors.firstName}</div>}
-
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Enter your Last Name"
-              value={formData.lastName}
-              onChange={handleInputChange}
-            />
-            {errors.lastName && <div className="error">{errors.lastName}</div>}
-
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your Email"
-              value={formData.email}
-              onChange={handleInputChange}
-            />
-            {errors.email && <div className="error">{errors.email}</div>}
-
-            <input
-              type="text"
-              name="phoneNumber"
-              placeholder="Enter your Phone Number"
-              value={formData.phoneNumber}
-              onChange={handleInputChange}
-            />
-            {errors.phoneNumber && <div className="error">{errors.phoneNumber}</div>}
-
-            <input
-              type="text"
-              name="address"
-              placeholder="Enter your Address"
-              value={formData.address}
-              onChange={handleInputChange}
-            />
-            {errors.address && <div className="error">{errors.address}</div>}
-
-            <input
-              type="password"
-              name="password"
-              placeholder="Set a Strong Password"
-              value={formData.password}
-              onChange={handleInputChange}
-            />
-            {errors.password && <div className="error">{errors.password}</div>}
-          </div>
-
-          <button type="submit" disabled={loading}>
-            {loading ? 'Submitting...' : 'Submit'}
-          </button>
-        </form>
-
-        {successMessage && <h6 className="success-message">{successMessage}</h6>}
+   <section className='top'>
+    <div className='container'>
+      <div className='header'>
+        <h1>Create new account</h1>
       </div>
-    </section>
-  );
-};
+            <form>
+              <div className='inputs'>
+                <input 
+                type='text' 
+                placeholder='Enter your First Name' 
+                name='firstName' 
+                value={firstName} 
+                onChange={(e) => setFirstName(e.target.value)} />
+                {errors.firstName && <div className='error'>{errors.firstName}</div>}
+                <input
+                type='text' 
+                placeholder='Enter your Last Name' 
+                name='lastName' 
+                value={lastName}
+                onChange={(e)=>setLastName(e.target.value)} />
+                {errors.lastName && <div className='error'>{errors.lastName}</div>}
+                <input 
+                type='text' 
+                placeholder='Enter your Email' 
+                name='email' 
+                value={email} 
+                onChange={(e)=>  setEmail(e.target.value)} />
+                {errors.email && <div className='error'>{errors.email}</div>}
+                <input 
+                type='text' 
+                placeholder='Enter your phone number' 
+                name='phoneNumber' 
+                value={phoneNumber} 
+                onChange={(e)=>   setPhoneNumber(e.target.value)} />
+                {errors.phoneNumber && <div className='error'>{errors.phoneNumber}</div>}
+                <input 
+                type='text' 
+                placeholder='Enter your address' 
+                name='address' 
+                value={address} 
+                onChange={(e)=>setAddress(e.target.value)} />
+                 {errors.address && <div className='error'>{errors.address}</div>}
+                <input 
+                type='password' 
+                placeholder='Set strong password' 
+                name='password' 
+                value={password} 
+                onChange={(e)=> setPassword(e.target.value)} />
+                {errors.password && <div className='error'>{errors.password}</div>}
+              </div>
 
+              <button type='submit' onClick={saveForm}>Submit</button>
+              <br></br>
+            </form>
+            {successMessage && <h6>{successMessage}</h6>}
+            <br></br>
+          </div>
+          </section>
+  );
+  }
 export default Register;
