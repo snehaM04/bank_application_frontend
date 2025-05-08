@@ -5,12 +5,18 @@ import "../css/transactions.css";
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Get the logged-in user's accountId from localStorage
   const accountId = localStorage.getItem("accountId");
 
   useEffect(() => {
     const fetchTransactionHistory = async () => {
+      if (!accountId) {
+        setError("No account ID found. Please log in again.");
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_API_BASE_URL}/api/transaction/transactionHistory`,
@@ -18,26 +24,31 @@ const TransactionHistory = () => {
             params: { accountId },
           }
         );
-        setTransactions(response.data);
-        setError("");
+        if (response.data.length === 0) {
+          setError("No transactions found.");
+        } else {
+          setTransactions(response.data);
+        }
       } catch (err) {
-        setTransactions([]);
-        setError(err.response?.data?.message || "No transactions found.");
+        console.error("Transaction fetch error:", err);
+        setError(err.response?.data?.message || "Error fetching transactions.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (accountId) {
-      fetchTransactionHistory();
-    } else {
-      setError("No account ID found. Please log in again.");
-    }
+    fetchTransactionHistory();
   }, [accountId]);
 
   return (
     <div className="transaction-history-container">
       <h2>Transaction History</h2>
-      {error && <p className="error-message">{error}</p>}
-      {transactions.length > 0 && (
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="error-message">{error}</p>
+      ) : (
         <table className="transaction-table">
           <thead>
             <tr>

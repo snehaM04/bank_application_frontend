@@ -3,13 +3,15 @@
  /* Increased padding for better spacing */
   text-align: center; /* Center align text */
   box-sizing: border-box;
-  margin-top: 30px;;
+  margin-top: 30px;
 }
 
 .container {
   max-width: 500px; /* Limit width of the form container */
   margin: 0 auto;
   background-color: aliceblue;
+  padding:20px;
+  margin-bottom: 30px;
 }
 
 .header {

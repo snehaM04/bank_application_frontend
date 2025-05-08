@@ -13,10 +13,10 @@ const Login = () => {
       password: '',
     },
   });
+
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState('');
-  const {setIsLoggedIn} = useAuth();
-
+  const { setIsLoggedIn } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,33 +43,31 @@ const Login = () => {
     }
 
     if (isValid) {
-      console.log('Form is valid. Proceeding with login...');
       try {
-        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, password }),
-        });
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/api/login`,
+          {
+            email,
+            password,
+          }
+        );
 
-        if (response.ok) {
-          const data = await response.json(); // ← Extract JSON response
+        const data = response.data;
 
-          // ✅ Save customerId to localStorage
-          localStorage.setItem('customerId', data.customerId);
-          console.log('Customer ID:', data.customerId); // Log the customerId
+        // Save customerId to localStorage
+        localStorage.setItem('customerId', data.customerId);
+        console.log('Customer ID:', data.customerId);
 
-          setSuccessMessage('Login successful!');
-          setIsLoggedIn(true);
-        
-          navigate('/customer'); // redirect to dashboard
-        } else {
-          setSuccessMessage('Email or password does not exist');
-        }
+        setSuccessMessage('Login successful!');
+        setIsLoggedIn(true);
+        navigate('/customer');
       } catch (error) {
         console.error('Error:', error);
-        setSuccessMessage('Something went wrong. Please try again.');
+        if (error.response && error.response.status === 401) {
+          setSuccessMessage('Email or password is incorrect');
+        } else {
+          setSuccessMessage('Something went wrong. Please try again.');
+        }
       }
     } else {
       setState((prevState) => ({
