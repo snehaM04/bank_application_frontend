@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../css/Deposit.css'; // Make sure your CSS matches new class names
+import '../css/deposit.css'; // Make sure your CSS matches new class names
 
 const Deposit = () => {
   const [amount, setAmount] = useState('');
