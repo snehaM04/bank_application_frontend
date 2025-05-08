@@ -1,41 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../css/deposit.css'; // You can rename or style accordingly
+import '../css/deposit.css';
 import { useNavigate } from 'react-router-dom';
 
 const Deposit = () => {
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
-  
-  const accountId = localStorage.getItem("accountId"); // Make sure this is stored after login/account fetch
-
+  const [accountId, setAccountId] = useState(null);
   const navigate = useNavigate();
 
-  const handleDeposit = () => {
-    if (!accountId || !amount) {
+  useEffect(() => {
+    const storedAccountId = localStorage.getItem('accountId');
+    if (storedAccountId) {
+      setAccountId(parseInt(storedAccountId));
+      console.log("Retrieved accountId from localStorage:", storedAccountId);
+    } else {
+      console.warn("No accountId found in localStorage.");
+      setMessage("No account selected. Please log in again.");
+    }
+  }, []);
+
+  const handleDeposit = async () => {
+    if (!accountId || !amount || parseFloat(amount) <= 0) {
       setMessage("Please enter a valid amount.");
+      console.error("Invalid deposit attempt. accountId:", accountId, "amount:", amount);
       return;
     }
 
     const depositPayload = {
-      accountId: parseInt(accountId),
+      accountId,
       amount: parseFloat(amount)
     };
 
-    console.log("Sending deposit request:", depositPayload);
+    console.log("Sending deposit request with payload:", depositPayload);
 
-    axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/transaction/deposit`, depositPayload)
-      .then(res => {
-        setMessage(res.data || "Deposit successful!");
-        setAmount('');
-        setTimeout(() => {
-          navigate('/customer'); // Redirect to customer page after 2 seconds
-        }, 2000);
-      })
-      .catch(err => {
-        console.error("Deposit failed:", err);
-        setMessage("Deposit failed. Please try again.");
-      });
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/api/transaction/deposit`,
+        depositPayload
+      );
+
+      console.log("Deposit response:", response.data);
+      setMessage(response.data || "Deposit successful!");
+      setAmount('');
+
+      setTimeout(() => {
+        navigate('/customer');
+      }, 2000);
+    } catch (error) {
+      console.error("Deposit failed:", error.response?.data || error.message);
+      setMessage("Deposit failed. Please try again.");
+    }
   };
 
   return (
@@ -47,11 +62,14 @@ const Deposit = () => {
           <input
             type="number"
             value={amount}
-            onChange={e => setAmount(e.target.value)}
+            onChange={(e) => setAmount(e.target.value)}
             placeholder="Enter amount"
+            min="0"
           />
         </label>
-        <button onClick={handleDeposit} disabled={!amount}>Deposit</button>
+        <button onClick={handleDeposit} disabled={!amount || parseFloat(amount) <= 0}>
+          Deposit
+        </button>
         {message && <p className="message">{message}</p>}
       </div>
     </div>
