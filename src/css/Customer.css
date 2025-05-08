@@ -13,48 +13,33 @@
   margin-bottom: 30px;
 }
 
-.customer-info,
-.account-info,
-.create-account {
+.customer-info, .account-info, .no-account {
   background-color: #eef5f9;
   padding: 20px;
   margin-bottom: 25px;
   border-radius: 10px;
 }
 
-.customer-info h2,
-.account-info h3,
-.create-account h3 {
+.customer-info h2 {
   color: #2a5d84;
-  margin-bottom: 15px;
 }
 
-.customer-info p,
-.account-info p {
-  margin: 8px 0;
-  color: #333;
-}
-
-.form-group {
-  margin-top: 15px;
-}
-
-.form-group label {
+.account-form label {
   display: block;
-  margin: 10px 0 5px;
-  font-weight: 500;
+  margin: 10px 0;
 }
 
-.form-group input,
-.form-group select {
+.account-form input,
+.account-form select {
   width: 100%;
   padding: 8px;
+  margin-top: 4px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  margin-bottom: 10px;
 }
 
-.form-group button {
+.account-form button {
+  margin-top: 15px;
   padding: 10px 20px;
   background-color: #0077cc;
   color: white;
@@ -65,26 +50,20 @@
   font-weight: bold;
 }
 
-.form-group button:disabled {
+.account-form button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
 
-.status-message {
-  margin-top: 10px;
-  font-weight: bold;
-  color: #d9534f; /* Bootstrap red */
-}
-
-.account-actions {
+.action-buttons {
   margin-top: 20px;
   display: flex;
+  gap: 15px;
   flex-wrap: wrap;
-  gap: 10px;
 }
 
-.account-actions button {
-  flex: 1 1 45%;
+.action-buttons button {
+  flex: 1;
   padding: 12px;
   background-color: #006699;
   color: white;
@@ -95,6 +74,6 @@
   transition: background-color 0.3s ease;
 }
 
-.account-actions button:hover {
+.action-buttons button:hover {
   background-color: #004466;
 }
